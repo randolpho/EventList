@@ -1,14 +1,15 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
-import {HttpClientModule} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 
 
 import {AppComponent} from './app.component';
 import {EventListComponent} from './event-list/event-list.component';
 import {EventService} from './event.service';
+import {BasicAuthInterceptor} from './model/BasicAuthInterceptor';
 
 
-@NgModule({
+@NgModule(<NgModule>{
   declarations: [
     AppComponent,
     EventListComponent
@@ -17,8 +18,11 @@ import {EventService} from './event.service';
     BrowserModule,
     HttpClientModule
   ],
-  providers: [EventService],
+  providers: [EventService, {
+    provide: HTTP_INTERCEPTORS,
+    useClass: BasicAuthInterceptor,
+    multi: true
+  }],
   bootstrap: [AppComponent]
 })
-export class AppModule {
-}
+export class AppModule { }
