@@ -1,0 +1,17 @@
+<span *ngIf="status.loading">Loading...</span>
+<span *ngIf="!status.loading">
+  <span *ngIf="status.error">
+    Unknown
+    ( <a href="#" (click)="setStatus(true)">Go</a> )
+  </span>
+  <span *ngIf="!status.error">
+    <span *ngIf="status.going">
+      Yes
+      ( <a href="#" (click)="setStatus(false)">Cancel</a> )
+    </span>
+    <span *ngIf="!status.going">
+      No
+      ( <a href="#" (click)="setStatus(true)">Go after all</a> )
+    </span>
+  </span>
+</span>

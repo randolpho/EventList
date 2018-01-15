@@ -1,5 +1,33 @@
-<ul>
-  <li *ngFor="let event of events">
-    <p>{{event.name}}</p>
-  </li>
-</ul>
+<div *ngIf="loading">Loading...</div>
+<div *ngIf="!loading">Last Fetched: {{eventList.dateFetched | date:'full'}}</div>
+<div *ngIf="selectedEvent">
+  <div><a (click)="onDetails(null)" href="#"><- back</a></div>
+  Details!
+</div>
+<div *ngIf="!selectedEvent">
+  <div *ngFor="let event of eventList.events" class="stripe">
+    <table style="width: 100%">
+      <tr>
+        <td style="width: 100px;">
+          <app-event-image
+            [image]="event.thumbnail"
+            [eventId]="event.id"></app-event-image>
+        </td>
+        <td>
+          <div>
+            <em>{{event.name}}</em>
+            ( <a (click)="onDetails(event)" href="#">details</a> )
+          </div>
+          <p class="description">{{event.description}}</p>
+          <div>At: {{event.location.name}}</div>
+          <div>
+            Going:
+            <app-event-status [eventId]="event.id"
+            [(status)]="event.status"></app-event-status>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+

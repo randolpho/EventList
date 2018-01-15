@@ -7,18 +7,26 @@ import {AppComponent} from './app.component';
 import {EventListComponent} from './event-list/event-list.component';
 import {EventService} from './event.service';
 import {BasicAuthInterceptor} from './model/BasicAuthInterceptor';
+import {LocalStorageService} from './local-storage.service';
+import {EventImageComponent} from './event-image/event-image.component';
+import {EventStatusComponent} from './event-status/event-status.component';
+import {CommonModule} from '@angular/common';
 
 
 @NgModule(<NgModule>{
   declarations: [
     AppComponent,
-    EventListComponent
+    EventListComponent,
+    EventImageComponent,
+    EventStatusComponent
   ],
   imports: [
     BrowserModule,
-    HttpClientModule
+    HttpClientModule,
+    CommonModule
   ],
-  providers: [EventService, {
+  providers: [EventService,
+    LocalStorageService, {
     provide: HTTP_INTERCEPTORS,
     useClass: BasicAuthInterceptor,
     multi: true

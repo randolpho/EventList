@@ -1,0 +1,11 @@
+.stripe {
+  padding: .6em;
+}
+
+.stripe:nth-of-type(odd) {
+  background:#efefef;
+}
+
+.description {
+  text-overflow: ellipsis;
+}
