@@ -19,10 +19,10 @@ export class LocalStorageService {
       return null;
     }
     try {
-      return JSON.parse(lz.decompress(val));
+      return JSON.parse(val);
     } catch (e) {
       console.log(`Error retrieving key ${key} from local storage: ${e}`);
-      return null;
+      return val;
     }
   }
 
@@ -30,15 +30,14 @@ export class LocalStorageService {
     if (!this.available) {
       return;
     }
+    let val: string;
+    if (typeof value === "string") {
+      val = value;
+    } else {
+      val = JSON.stringify(value);
+    }
+    window.localStorage.setItem(key, val);
     // setTimeout(() => {
-    //   let val: string;
-    //   if (typeof value === "string") {
-    //     val = value;
-    //   } else {
-    //      val = lz.compress(JSON.stringify(value));
-    //     // val = JSON.stringify(value);
-    //   }
-    //   window.localStorage.setItem(key, val);
     // }, 10000);
   }
 }

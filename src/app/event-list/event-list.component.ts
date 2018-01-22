@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {EventService} from '../event.service';
 import 'rxjs/add/operator/retry';
-import {EventInstance, EventList} from '../model/Event';
+import {EventImage, EventInstance, EventList} from '../model/Event';
 
 @Component({
   selector: 'app-event-list',
@@ -34,5 +34,18 @@ export class EventListComponent implements OnInit {
 
   onDetails(event: EventInstance) {
     this.selectedEvent = event;
+  }
+
+  getThumbnail(event: EventInstance): EventImage {
+    if (!event) {
+      return null;
+    }
+    if (event.images) {
+      return null;
+    }
+    if (event.images.length === 0) {
+      return null;
+    }
+    return event.images[0];
   }
 }

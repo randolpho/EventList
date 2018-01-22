@@ -8,8 +8,7 @@ import {of} from 'rxjs/observable/of';
 
 @Injectable()
 export class EventService {
-  private rootUrl: string = 'http://dev.dragonflyathletics.com:1337/api/dfkey/';
-  private numRetries: number = 200;
+  private rootUrl = 'http://dev.dragonflyathletics.com:1337/api/dfkey/';
 
   constructor(private http: HttpClient, private ls: LocalStorageService) {
   }
@@ -52,8 +51,6 @@ export class EventService {
       }, error => {
         console.error(`Error fetching image ${url}`);
         console.error(error);
-        // observer.next("/assets/missing.png");
-        // observer.complete();
       });
     });
     return observable;
@@ -66,69 +63,8 @@ export class EventService {
     return response;
   }
 
-  // getStatus(id: string): Observable<boolean> {
-  //   const observable = Observable.create(observer => {
-  //     const url = this.statusUrl(id, BasicAuthInterceptor.username);
-  //     const statusObservable = this.http.get(url);
-  //     statusObservable.subscribe(status => {
-  //       if (status) {
-  //         observer.next(true);
-  //       } else {
-  //         observer.next(false);
-  //       }
-  //       observer.complete();
-  //     }, err => {
-  //       console.error(`Error getting status at url ${url}.`);
-  //       console.error(err);
-  //       observer.complete();
-  //     });
-  //   });
-  //   return observable;
-  // }
-  // getStatuses(events: Array<EventInstance>): Observable<any> {
-  //   const observers = [];
-  //   for (const event of events) {
-  //     // this little hack should let me forkJoin without quitting mid-stream on an
-  //     // error. Fingers crossed
-  //     const observable = Observable.create(observer => {
-  //       const url = this.statusUrl(event.id, BasicAuthInterceptor.username);
-  //       const statusObserver = this.http.get(url);
-  //       // statusObserver.retry(this.numRetries);
-  //       statusObserver.subscribe(data => {
-  //         const attending = {attending: false};
-  //         if (data) {
-  //           attending.attending = true;
-  //         }
-  //         this.ls.set(url, attending);
-  //         Object.assign(event, attending);
-  //         observer.complete();
-  //       }, err => {
-  //         console.error(`Error getting status at url ${url}. Using local storage, if available`);
-  //         console.error(err);
-  //         let attending = this.ls.get(url);
-  //         if (!attending) {
-  //           attending = {attending: false};
-  //         }
-  //         Object.assign(event, attending);
-  //         observer.complete();
-  //       });
-  //     });
-  //     observers.push(observable);
-  //   }
-  //   return forkJoin(observers);
-  // }
-  //
-
-  buildThumbnails(events: Array<EventInstance>) {
-    for (const event of events) {
-      if (event.images && event.images.length > 0) {
-        event.thumbnail = event.images[0];
-      }
-    }
-  }
-
   getEvents(): Observable<EventList> {
-    const observable = Observable.create(observer => {
+    return Observable.create(observer => {
       const url = this.eventsUrl();
       const eventsObservable = this.http.get(url);
       eventsObservable.subscribe(events => {
@@ -137,53 +73,77 @@ export class EventService {
           const eventList = new EventList(new Date(), events);
           observer.next(eventList);
           observer.complete();
-          this.ls.set(url, eventList);
+          this.cacheEventList(eventList);
         } else {
-          observer.next(this.ls.get(url) as EventList);
-          observer.complete();
+          const cachedEvents = this.getCachedEvents();
+          if (cachedEvents) {
+            observer.next(cachedEvents);
+          }
         }
       }, error => {
         console.error('Error fetching event list. Returning local storage version, if available.');
         console.error(error);
-        observer.next(this.ls.get(url) as EventList);
+        const cachedEvents = this.getCachedEvents();
+        if (cachedEvents) {
+          observer.next(cachedEvents);
+        }
         observer.complete();
       });
     });
-    return observable;
   }
 
-  // getEventList(): Observable<Array<EventInstance>> {
-  //   const observable = Observable.create(observer => {
-  //     const url = this.eventsUrl();
-  //     const eventsObservable = this.http.get(url);
-  //     // eventsObservable.retry(this.numRetries);
-  //     eventsObservable.subscribe(events => {
-  //       if (events instanceof Array) {
-  //         this.buildThumbnailUrls(events);
-  //         const statusesObservable = this.getStatuses(events);
-  //         statusesObservable.subscribe(ignored => {
-  //         }, err => {
-  //           console.error('Error fetching event statuses. Returning local storage events, if available.');
-  //           console.error(err);
-  //           observer.next(this.ls.get(url) as Array<EventInstance>);
-  //           observer.complete();
+  private buildThumbnails(events: Array<EventInstance>) {
+    for (const event of events) {
+      if (event.images && event.images.length > 0) {
+        event.thumbnail = event.images[0];
+      }
+    }
+  }
+
+  private cacheEventList(events: EventList) {
+    const cachedEvents = [];
+    for (const event of events.events) {
+      const cachedEvent = new EventInstance();
+      cachedEvent.date = event.date;
+      cachedEvent.description = event.description;
+      cachedEvent.id = event.id;
+      cachedEvent.name = event.name;
+      cachedEvent.thumbnail = event.thumbnail;
+      cachedEvent.location = event.location;
+      cachedEvents.push(cachedEvent);
+    }
+    const cached = new EventList(events.dateFetched, cachedEvents);
+    this.ls.set('EventList', cached);
+  }
+
+  private getCachedEvents(): EventList {
+    const events = this.ls.get('EventList') as EventList;
+    return events;
+  }
+
+
+  // private getCachedEvents(): EventList {
+  //   const cachedEventList = this.ls.get('EventList') as CachedEventList;
+  //   if (!cachedEventList) {
+  //     return;
+  //   }
+  //   const eventList = []; // new Array<EventInstance>();
+  //   for (const id of cachedEventList.ids) {
+  //     const event = this.ls.get(`Event: ${id}`) as EventInstance;
+  //     if (event) {
+  //       eventList.push(event);
+  //     }
+  //   }
+  //   return new EventList(cachedEventList.dateFetched, eventList);
+  // }
   //
-  //         }, () => {
-  //           this.ls.set(url, events);
-  //           observer.next(events);
-  //           observer.complete();
-  //         });
-  //       } else {
-  //         observer.next(this.ls.get(url) as Array<EventInstance>);
-  //         observer.complete();
-  //       }
-  //     }, error => {
-  //       console.error('Error fetching event list. Returning local storage version, if available.');
-  //       console.error(error);
-  //       observer.next(this.ls.get(url) as Array<EventInstance>);
-  //       observer.complete();
-  //     });
-  //   });
-  //   return observable;
+  // private cacheEventList(events: EventList) {
+  //   const ids = []; // new Array<string>();
+  //   for (const event of events.events) {
+  //     ids.push(event.id);
+  //     this.ls.set(`Event: ${event.id}`, event);
+  //   }
+  //   const cached = new CachedEventList(events.dateFetched, ids);
+  //   this.ls.set("EventList", cached);
   // }
 }

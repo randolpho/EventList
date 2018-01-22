@@ -38,3 +38,5 @@ export  class EventStatus {
   going: boolean;
   error: boolean;
 }
+
+

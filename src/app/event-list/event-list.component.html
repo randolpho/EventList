@@ -1,7 +1,7 @@
 <div *ngIf="loading">Loading...</div>
 <div *ngIf="!loading">Last Fetched: {{eventList.dateFetched | date:'full'}}</div>
 <div *ngIf="selectedEvent">
-  <div><a (click)="onDetails(null)" href="#"><- back</a></div>
+  <div><button click)="onDetails(null)" href="#"><- back</button></div>
   Details!
 </div>
 <div *ngIf="!selectedEvent">
@@ -16,14 +16,13 @@
         <td>
           <div>
             <em>{{event.name}}</em>
-            ( <a (click)="onDetails(event)" href="#">details</a> )
+            ( <button (click)="onDetails(event)" href="#">details</button> )
           </div>
           <p class="description">{{event.description}}</p>
           <div>At: {{event.location.name}}</div>
           <div>
             Going:
-            <app-event-status [eventId]="event.id"
-            [(status)]="event.status"></app-event-status>
+            <app-event-status [eventId]="event.id"></app-event-status>
           </div>
         </td>
       </tr>
