@@ -1,6 +1,5 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {EventService} from '../event.service';
-import {EventStatus} from '../model/Event';
 import {LocalStorageService} from '../local-storage.service';
 
 @Component({
@@ -14,68 +13,61 @@ export class EventStatusComponent implements OnInit {
   error: boolean;
   going: boolean;
 
-  constructor(private eventService: EventService, private ls: LocalStorageService) {
+  constructor(private eventService: EventService,
+              private ls: LocalStorageService) {
   }
+
 
   ngOnInit() {
     this.loading = true;
     this.error = false;
-    const key = 'EventId: ' + this.eventId;
-    const cachedGoing = this.ls.get(key);
-    if (cachedGoing) {
-      this.going = true;
+    const cachedGoing = this.ls.get(this.getKey());
+    if (cachedGoing === null) {
+      this.loadStatus();
     } else {
-      this.going = false;
+      this.going = cachedGoing;
+      this.loading = false;
     }
+  }
+
+  loadStatus() {
+    const key = this.getKey();
     const obsrv = this.eventService.getStatus(this.eventId);
     obsrv.subscribe(status => {
       this.loading = false;
       if (status) {
         this.going = true;
-        this.ls.set(key, this.going);
       } else {
         this.going = false;
-        this.ls.set(key, null);
       }
+      this.ls.set(key, this.going);
     }, err => {
       this.loading = false;
       this.error = true;
+      this.ls.set(key, null);
       console.error('Error obtaining status');
       console.error(err);
     });
 
-    //
-    // if (!this.status) {
-    //   this.status = new EventStatus();
-    //   this.status.loading = true;
-    //   this.statusChange.emit(this.status);
-    //   const obsrv = this.eventService.getStatus(this.eventId);
-    //   obsrv.subscribe(status => {
-    //     this.status.loading = false;
-    //     this.status.error = false;
-    //     if (status) {
-    //       this.status.going = true;
-    //     } else {
-    //       this.status.going = false;
-    //     }
-    //   }, err => {
-    //     this.status.loading = false;
-    //     this.status.error = true;
-    //   });
-    // }
   }
 
   setStatus(going: boolean) {
     this.loading = true;
+    this.error = false;
     const obsrv = this.eventService.setStatus(this.eventId, going);
     obsrv.retry(200);
-    obsrv.subscribe(status => {
+    obsrv.subscribe(() => {
       this.loading = false;
       this.going = going;
+      this.ls.set(this.getKey(), this.going);
     }, err => {
       console.error('Error RSVPing to event');
       console.error(err);
       this.setStatus(going);
     });
+  }
+
+  private getKey() {
+    return 'EventId: ' + this.eventId;
   }
 }

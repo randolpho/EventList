@@ -36,10 +36,11 @@ export class EventService {
   }
 
   getImage(id: string, mediaId: string): Observable<string> {
-    if (!window) {
-      return of('/assets/missing.png');
-    }
-    const observable = Observable.create(observer => {
+    return Observable.create(observer => {
+      if (!window) {
+        observer.error("No window object");
+        return;
+      }
       const url = this.mediaUrl(id, mediaId);
       const req = this.http.get(url, {responseType: 'blob'});
       req.subscribe(blob => {
@@ -47,13 +48,16 @@ export class EventService {
           const objUrl = URL.createObjectURL(blob);
           observer.next(objUrl);
           observer.complete();
+        } else {
+          // we didn't receive an image in the response body. Let the component handle it as an error
+          observer.error("no image received");
+          observer.complete();
         }
       }, error => {
-        console.error(`Error fetching image ${url}`);
-        console.error(error);
+        observer.error(error);
+        observer.complete();
       });
     });
-    return observable;
   }
 
   setStatus(id: string, coming: boolean) {
@@ -120,30 +124,4 @@ export class EventService {
     const events = this.ls.get('EventList') as EventList;
     return events;
   }
-
-
-  // private getCachedEvents(): EventList {
-  //   const cachedEventList = this.ls.get('EventList') as CachedEventList;
-  //   if (!cachedEventList) {
-  //     return;
-  //   }
-  //   const eventList = []; // new Array<EventInstance>();
-  //   for (const id of cachedEventList.ids) {
-  //     const event = this.ls.get(`Event: ${id}`) as EventInstance;
-  //     if (event) {
-  //       eventList.push(event);
-  //     }
-  //   }
-  //   return new EventList(cachedEventList.dateFetched, eventList);
-  // }
-  //
-  // private cacheEventList(events: EventList) {
-  //   const ids = []; // new Array<string>();
-  //   for (const event of events.events) {
-  //     ids.push(event.id);
-  //     this.ls.set(`Event: ${event.id}`, event);
-  //   }
-  //   const cached = new CachedEventList(events.dateFetched, ids);
-  //   this.ls.set("EventList", cached);
-  // }
 }

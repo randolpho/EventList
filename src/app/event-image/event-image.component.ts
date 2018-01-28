@@ -13,12 +13,13 @@ export class EventImageComponent implements OnInit {
   @Input() eventId: string;
   public imageSource: SafeUrl;
 
-  constructor(private eventService: EventService, private sanitizer: DomSanitizer) {
-  }
+  constructor(private eventService: EventService,
+              private sanitizer: DomSanitizer) { }
 
   ngOnInit() {
-    this.imageSource = '/assets/missing.png';
+    this.imageSource = '/assets/loading.gif';
     if (!this.image) {
+      this.imageSource = '/assets/missing.png';
       return;
     }
     if (this.image.url) {
@@ -27,8 +28,13 @@ export class EventImageComponent implements OnInit {
     }
     const sub = this.eventService.getImage(this.eventId, this.image.id);
     sub.subscribe(url => {
+      console.log(url);
       this.image.url = url;
       this.setImageSource();
+    }, err => {
+      console.log("Error loading image");
+      console.log(err);
+      this.imageSource = '/assets/missing.png';
     });
   }
 
