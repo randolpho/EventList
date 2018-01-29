@@ -11,24 +11,27 @@ import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 export class EventImageComponent implements OnInit {
   @Input() image: EventImage;
   @Input() eventId: string;
+  @Input() isThumbnail = false;
   public imageSource: SafeUrl;
+  public imageCaption: string;
 
   constructor(private eventService: EventService,
               private sanitizer: DomSanitizer) { }
 
   ngOnInit() {
-    this.imageSource = '/assets/loading.gif';
     if (!this.image) {
       this.imageSource = '/assets/missing.png';
+      this.imageCaption = "";
       return;
     }
+    this.imageSource = '/assets/loading.gif';
+    this.imageCaption = this.image.caption;
     if (this.image.url) {
       this.setImageSource();
       return;
     }
     const sub = this.eventService.getImage(this.eventId, this.image.id);
     sub.subscribe(url => {
-      console.log(url);
       this.image.url = url;
       this.setImageSource();
     }, err => {

@@ -11,11 +11,10 @@ import {EventImage, EventInstance, EventList} from '../model/Event';
 export class EventListComponent implements OnInit {
   eventList: EventList;
   loading: boolean;
-  saving: boolean;
   selectedEvent: EventInstance;
+  private maxDescriptionLength = 150;
 
   constructor(private eventService: EventService) {
-    this.saving = false;
   }
 
   ngOnInit() {
@@ -36,16 +35,10 @@ export class EventListComponent implements OnInit {
     this.selectedEvent = event;
   }
 
-  getThumbnail(event: EventInstance): EventImage {
-    if (!event) {
-      return null;
+  truncateDescription(text: string) {
+    if (text.length < this.maxDescriptionLength) {
+      return text;
     }
-    if (event.images) {
-      return null;
-    }
-    if (event.images.length === 0) {
-      return null;
-    }
-    return event.images[0];
+    return text.substring(0, this.maxDescriptionLength) + ' ...';
   }
 }

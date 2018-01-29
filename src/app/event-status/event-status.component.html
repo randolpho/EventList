@@ -1,8 +1,8 @@
 <span *ngIf="loading">Loading...</span>
 <span *ngIf="!loading">
   <span *ngIf="error">
-    Unknown
-    <button (click)="setStatus(true)">Go</button>
+    <button (click)="setStatus(true)">Yes</button>
+    <button (click)="setStatus(false)">No</button>
   </span>
   <span *ngIf="!error">
     <span *ngIf="going">

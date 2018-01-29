@@ -11,6 +11,7 @@ import {LocalStorageService} from './local-storage.service';
 import {EventImageComponent} from './event-image/event-image.component';
 import {EventStatusComponent} from './event-status/event-status.component';
 import {CommonModule} from '@angular/common';
+import {EventDetailsComponent} from './event-details/event-details.component';
 
 
 @NgModule(<NgModule>{
@@ -18,7 +19,8 @@ import {CommonModule} from '@angular/common';
     AppComponent,
     EventListComponent,
     EventImageComponent,
-    EventStatusComponent
+    EventStatusComponent,
+    EventDetailsComponent
   ],
   imports: [
     BrowserModule,

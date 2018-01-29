@@ -12,7 +12,6 @@ export class EventInstance {
   location: EventLocation;
   name: string;
   thumbnail: EventImage;
-  status: EventStatus;
 }
 
 export class EventComment {
@@ -31,12 +30,6 @@ export class EventLocation {
   city: string;
   name: string;
   state: string;
-}
-
-export  class EventStatus {
-  loading: boolean;
-  going: boolean;
-  error: boolean;
 }
 
 

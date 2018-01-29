@@ -27,6 +27,7 @@ export class EventStatusComponent implements OnInit {
     } else {
       this.going = cachedGoing;
       this.loading = false;
+      this.loadStatus();
     }
   }
 
@@ -36,11 +37,12 @@ export class EventStatusComponent implements OnInit {
     obsrv.subscribe(status => {
       this.loading = false;
       if (status) {
-        this.going = true;
+        this.going = status.coming;
+        this.ls.set(key, this.going);
       } else {
-        this.going = false;
+        this.error = true;
+        this.ls.set(key, null);
       }
-      this.ls.set(key, this.going);
     }, err => {
       this.loading = false;
       this.error = true;

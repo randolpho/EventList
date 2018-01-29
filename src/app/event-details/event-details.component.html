@@ -1,0 +1,29 @@
+<h3>Event <em>{{event.name}}</em></h3>
+<div>
+  <div>{{event.location.name}}</div>
+  <div>{{event.location.address}}</div>
+  <div>{{event.location.city}}, {{event.location.state}}</div>
+</div>
+<div>On: {{event.date.toDateString()}} @ {{event.date.toLocaleTimeString()}}</div>
+<p>{{event.description}}</p>
+<div *ngIf="event.images">
+  <details>
+    <summary>Images</summary>
+    <div *ngFor="let image of event.images">
+      <app-event-image
+        [image]="image"
+        [eventId]="event.id"></app-event-image>
+    </div>
+  </details>
+</div>
+<div *ngIf="event.comments">
+  <details>
+    <summary>Comments</summary>
+    <div *ngFor="let comment of event.comments">
+      <div><em>{{comment.from}}</em></div>
+      <p>{{comment.text}}</p>
+    </div>
+  </details>
+</div>
+
+

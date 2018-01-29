@@ -38,7 +38,7 @@ export class EventService {
   getImage(id: string, mediaId: string): Observable<string> {
     return Observable.create(observer => {
       if (!window) {
-        observer.error("No window object");
+        observer.error('No window object');
         return;
       }
       const url = this.mediaUrl(id, mediaId);
@@ -50,7 +50,7 @@ export class EventService {
           observer.complete();
         } else {
           // we didn't receive an image in the response body. Let the component handle it as an error
-          observer.error("no image received");
+          observer.error('no image received');
           observer.complete();
         }
       }, error => {
@@ -101,6 +101,7 @@ export class EventService {
       if (event.images && event.images.length > 0) {
         event.thumbnail = event.images[0];
       }
+      event.date = new Date(event.date);
     }
   }
 
